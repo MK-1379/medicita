@@ -7,7 +7,7 @@ abstract class Model
     public function __construct()
     {
         $this->dbh = new PDO(
-            "mysql:host=" . DB_HOST . ";port=3307;dbname=" . DB_NAME,
+            "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME,
             DB_USER,
             DB_PASS,
             array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
