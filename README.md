@@ -64,7 +64,65 @@ All sample accounts use the password `Demo1234!`. These are fictional accounts f
 
 ## Project structure
 
-[VERIFICAR: pegar aquí el árbol real de carpetas]
+C:.
+|   .gitignore
+|   .htaccess
+|   config.example.php
+|   config.php
+|   index.php
+|   README.md
+|
++---assets
+|   \---css
+|           app.css
+|
++---classes
+|       Bootstrap.php
+|       Controller.php
+|       Messages.php
+|       Model.php
+|       Password.php
+|
++---controllers
+|       AuthController.php
+|       HomeController.php
+|       MedicoController.php
+|       PacienteController.php
+|
++---database
+|       citas_medicas.sql
+|
++---docs
+|   \---screenshots
+|           doctor-dashboard.png
+|           home.png
+|           patient-dashboard.png
+|
++---models
+|       CitaModel.php
+|       MedicoModel.php
+|       PacienteModel.php
+|
+\---views
+    +---auth
+    |       login.php
+    |       register.php
+    |
+    +---home
+    |       index.php
+    |       medicos.php
+    |
+    +---medicos
+    |       crear_cita.php
+    |       dashboard.php
+    |       detalle_cita.php
+    |       perfil.php
+    |
+    \---pacientes
+            buscar_citas.php
+            dashboard.php
+            detalle_cita.php
+            perfil.php
 
 ## Possible improvements
 
