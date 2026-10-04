@@ -92,12 +92,12 @@ class PacienteController extends Controller
 
         $paciente = $this->pacienteModel->findById($_SESSION['user_id']);
 
-        if (md5($actual) != $paciente->password) {
+        if (!Password::verify($actual, $paciente->password)) {
             Messages::set('danger', 'La contraseña actual no es correcta.');
             $this->redirect('paciente/perfil');
         }
 
-        $this->pacienteModel->updatePassword($_SESSION['user_id'], md5($nueva));
+        $this->pacienteModel->updatePassword($_SESSION['user_id'], Password::hash($nueva));
         Messages::set('success', 'Contraseña actualizada correctamente.');
         $this->redirect('paciente/perfil');
     }

@@ -64,6 +64,14 @@ class MedicoModel extends Model
         return $this->rowCount() > 0;
     }
 
+    public function updatePassword($id, $hashedPassword)
+    {
+        $this->query("UPDATE medicos SET password = :password WHERE id = :id");
+        $this->bind(':password', $hashedPassword);
+        $this->bind(':id', $id);
+        $this->execute();
+    }
+
     public function create($data)
     {
         $this->query("INSERT INTO medicos (nombre, apellido, telefono, email, fecha_nac, sexo, password)

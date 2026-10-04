@@ -6,6 +6,7 @@ require('classes/Messages.php');
 require('classes/Bootstrap.php');
 require('classes/Controller.php');
 require('classes/Model.php');
+require('classes/Password.php');
 
 require('controllers/AuthController.php');
 require('controllers/HomeController.php');

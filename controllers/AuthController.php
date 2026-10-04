@@ -42,9 +42,18 @@ class AuthController extends Controller
             $user = $this->pacienteModel->findByEmailOrPhone($identifier);
         }
 
-        if (!$user || md5($password) != $user->password) {
+        if (!$user || !Password::verify($password, $user->password)) {
             Messages::set('danger', 'Credenciales incorrectas. Inténtalo de nuevo.');
             $this->redirect('auth/login');
+        }
+
+        if (Password::needsUpgrade($user->password)) {
+            $newHash = Password::hash($password);
+            if ($role === 'medico') {
+                $this->medicoModel->updatePassword($user->id, $newHash);
+            } else {
+                $this->pacienteModel->updatePassword($user->id, $newHash);
+            }
         }
 
         $_SESSION['user_id'] = $user->id;
@@ -53,7 +62,7 @@ class AuthController extends Controller
 
         Messages::set('success', '¡Bienvenido/a, ' . $user->nombre . '!');
         $this->redirect($role . '/dashboard');
-    }
+        }
 
     public function register()
     {
@@ -95,7 +104,7 @@ class AuthController extends Controller
             }
             $this->redirect('auth/register' . ($role === 'medico' ? 'Medico' : ''));
         }
-        $data['password'] = md5($data['password']);
+        $data['password'] = Password::hash($data['password']);
 
         if ($role === 'medico') {
             $created = $this->medicoModel->create($data);
