@@ -35,6 +35,15 @@ abstract class Controller
         }
     }
 
+    // Las acciones que cambian datos solo aceptan POST. Así un enlace o una
+    // imagen en otra web no pueden ejecutarlas, y el token CSRF siempre se comprueba.
+    protected function requirePost($fallbackUrl)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect($fallbackUrl);
+        }
+    }
+
     protected function requireGuest()
     {
         if (isset($_SESSION['user_id'])) {

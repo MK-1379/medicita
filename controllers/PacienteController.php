@@ -5,12 +5,10 @@ class PacienteController extends Controller
 
     private $pacienteModel;
     private $citaModel;
-    private $medicoModel;
 
     public function __construct($action, $request)
     {
         parent::__construct($action, $request);
-        $this->medicoModel = new MedicoModel();
         $this->citaModel = new CitaModel();
         $this->pacienteModel = new PacienteModel();
     }
@@ -65,6 +63,7 @@ class PacienteController extends Controller
     public function perfilPost()
     {
         $this->requireAuth('paciente');
+        $this->requirePost('paciente/perfil');
 
         $actual = $_POST['password_actual'] ?? '';
         $nueva = $_POST['password_nueva'] ?? '';
@@ -105,11 +104,17 @@ class PacienteController extends Controller
     public function reservar($id)
     {
         $this->requireAuth('paciente');
+        $this->requirePost('paciente/buscarCitas');
 
         $aseguradora = trim($_POST['aseguradora'] ?? '');
 
         if (empty($aseguradora)) {
             Messages::set('danger', 'Debes indicar tu aseguradora.');
+            $this->redirect('paciente/buscarCitas');
+        }
+
+        if (mb_strlen($aseguradora) > 100) {
+            Messages::set('danger', 'El nombre de la aseguradora no puede superar los 100 caracteres.');
             $this->redirect('paciente/buscarCitas');
         }
 

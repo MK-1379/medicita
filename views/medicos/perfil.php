@@ -34,7 +34,10 @@ $nombreMedico = $_SESSION['user_name'] ?? 'Médico';
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="texto-bienvenida"><?= htmlspecialchars($nombreMedico) ?></span>
-            <a href="<?= BASE_URL ?>auth/logout" class="btn-salir">Cerrar sesión</a>
+            <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn-salir">Cerrar sesión</button>
+            </form>
         </div>
     </nav>
 
@@ -82,7 +85,7 @@ $nombreMedico = $_SESSION['user_name'] ?? 'Médico';
             <div class="fila-perfil">
                 <span class="campo-label">Sexo</span>
                 <span class="campo-valor">
-                    <?= ($medico->sexo === 'M') ? 'Masculino' : 'Femenino' ?>
+                    <?= ['M' => 'Masculino', 'F' => 'Femenino', 'O' => 'Otro'][$medico->sexo] ?? '—' ?>
                 </span>
             </div>
         </div>
@@ -90,6 +93,7 @@ $nombreMedico = $_SESSION['user_name'] ?? 'Médico';
         <div class="seccion-perfil">
             <div class="encabezado-seccion">ESPECIALIDAD Y HORARIO</div>
             <form method="POST" action="<?= BASE_URL ?>medico/perfilPost">
+                <?= Csrf::field() ?>
 
                 <div class="etiqueta-editar">Especialidad</div>
                 <input type="text" name="especialidad" class="input-editar"

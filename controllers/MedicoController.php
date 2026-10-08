@@ -5,7 +5,6 @@ class MedicoController extends Controller
 
     private $medicoModel;
     private $citaModel;
-    private $pacienteModel;
     private $perPage = 8;
 
     public function __construct($action, $request)
@@ -13,7 +12,6 @@ class MedicoController extends Controller
         parent::__construct($action, $request);
         $this->medicoModel = new MedicoModel();
         $this->citaModel = new CitaModel();
-        $this->pacienteModel = new PacienteModel();
     }
 
     public function dashboard()
@@ -53,6 +51,7 @@ class MedicoController extends Controller
     public function perfilPost()
     {
         $this->requireAuth('medico');
+        $this->requirePost('medico/perfil');
 
         $especialidad = trim($_POST['especialidad'] ?? '');
         $horario = trim($_POST['horario'] ?? '');
@@ -76,13 +75,15 @@ class MedicoController extends Controller
     public function crearCitaPost()
     {
         $this->requireAuth('medico');
+        $this->requirePost('medico/crearCita');
 
         $fecha = $_POST['fecha'] ?? '';
         $hora  = $_POST['hora'] ?? '';
         $lugar = trim($_POST['lugar'] ?? '');
 
-        if (empty($fecha) || empty($hora) || empty($lugar)) {
-            Messages::set('danger', 'Todos los campos son obligatorios.');
+        $error = $this->validateCita($fecha, $hora, $lugar);
+        if ($error) {
+            Messages::set('danger', $error);
             $this->redirect('medico/crearCita');
         }
 
@@ -102,31 +103,19 @@ class MedicoController extends Controller
         $this->redirect('medico/dashboard');
     }
 
-    public function editarCita($id)
-    {
-        $this->requireAuth('medico');
-
-        $cita = $this->citaModel->findById($id);
-
-        if (!$cita || $cita->medico_id != $_SESSION['user_id']) {
-            Messages::set('danger', 'No tienes permiso para editar esta cita.');
-            $this->redirect('medico/dashboard');
-        }
-
-        $this->view('medicos/editar_cita', ['cita' => $cita]);
-    }
-
     public function editarCitaPost($id)
     {
         $this->requireAuth('medico');
+        $this->requirePost('medico/detalleCita/' . $id);
 
         $fecha = $_POST['fecha'] ?? '';
         $hora  = $_POST['hora'] ?? '';
         $lugar = trim($_POST['lugar'] ?? '');
 
-        if (empty($fecha) || empty($hora) || empty($lugar)) {
-            Messages::set('danger', 'Todos los campos son obligatorios.');
-            $this->redirect('medico/editarCita/' . $id);
+        $error = $this->validateCita($fecha, $hora, $lugar);
+        if ($error) {
+            Messages::set('danger', $error);
+            $this->redirect('medico/detalleCita/' . $id);
         }
 
         $updated = $this->citaModel->update($id, $_SESSION['user_id'], [
@@ -147,6 +136,7 @@ class MedicoController extends Controller
     public function eliminarCita($id)
     {
         $this->requireAuth('medico');
+        $this->requirePost('medico/dashboard');
 
         $deleted = $this->citaModel->delete($id, $_SESSION['user_id']);
 
@@ -173,20 +163,26 @@ class MedicoController extends Controller
         $this->view('medicos/detalle_cita', ['cita' => $cita]);
     }
 
-    public function pacientes()
+    // Devuelve el mensaje de error, o null si los datos son correctos.
+    private function validateCita($fecha, $hora, $lugar)
     {
-        $this->requireAuth('medico');
+        if ($fecha === '' || $hora === '' || $lugar === '') {
+            return 'Todos los campos son obligatorios.';
+        }
 
-        $page = max(1, (int)($_GET['page'] ?? 1));
-        $offset = ($page - 1) * $this->perPage;
-        $pacientes = $this->pacienteModel->getPaginated($this->perPage, $offset);
-        $total = $this->pacienteModel->count();
-        $totalPages = (int) ceil($total / $this->perPage);
+        $fechaHora = DateTime::createFromFormat('!Y-m-d H:i', $fecha . ' ' . substr($hora, 0, 5));
+        if (!$fechaHora || $fechaHora->format('Y-m-d H:i') !== $fecha . ' ' . substr($hora, 0, 5)) {
+            return 'La fecha o la hora no tienen un formato válido.';
+        }
 
-        $this->view('medicos/pacientes', [
-            'pacientes' => $pacientes,
-            'page' => $page,
-            'totalPages' => $totalPages,
-        ]);
+        if ($fechaHora < new DateTime()) {
+            return 'La cita no puede ser en una fecha u hora que ya ha pasado.';
+        }
+
+        if (mb_strlen($lugar) > 150) {
+            return 'El lugar no puede superar los 150 caracteres.';
+        }
+
+        return null;
     }
 }

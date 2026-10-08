@@ -4,22 +4,22 @@ class Messages
 
     public static function set($type, $text)
     {
-        if ($type == 'danger') {
-            $_SESSION['errorMsg'] = $text;
-        } else {
-            $_SESSION['successMsg'] = $text;
-        }
+        $type = ($type === 'danger') ? 'danger' : 'success';
+        $_SESSION['flash'][$type][] = $text;
     }
 
     public static function display()
     {
-        if (isset($_SESSION['errorMsg'])) {
-            echo '<div class="alert alert-danger">' . $_SESSION['errorMsg'] . '</div>';
-            unset($_SESSION['errorMsg']);
+        if (empty($_SESSION['flash'])) {
+            return;
         }
-        if (isset($_SESSION['successMsg'])) {
-            echo '<div class="alert alert-success">' . $_SESSION['successMsg'] . '</div>';
-            unset($_SESSION['successMsg']);
+        foreach ($_SESSION['flash'] as $type => $messages) {
+            foreach ($messages as $text) {
+                echo '<div class="alert alert-' . $type . '" role="alert">'
+                    . htmlspecialchars($text, ENT_QUOTES, 'UTF-8')
+                    . '</div>';
+            }
         }
+        unset($_SESSION['flash']);
     }
 }

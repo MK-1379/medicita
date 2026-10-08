@@ -34,7 +34,10 @@ if (!$paciente) {
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="texto-bienvenida"><?= htmlspecialchars($nombrePaciente) ?></span>
-            <a href="<?= BASE_URL ?>auth/logout" class="btn-salir">Cerrar sesión</a>
+            <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn-salir">Cerrar sesión</button>
+            </form>
         </div>
     </nav>
 
@@ -78,7 +81,7 @@ if (!$paciente) {
             <div class="dato-perfil">
                 <span class="nombre-dato">Sexo</span>
                 <span class="valor-dato-pac">
-                    <?= ($paciente->sexo === 'M') ? 'Masculino' : 'Femenino' ?>
+                    <?= ['M' => 'Masculino', 'F' => 'Femenino', 'O' => 'Otro'][$paciente->sexo] ?? '—' ?>
                 </span>
             </div>
         </div>
@@ -92,6 +95,7 @@ if (!$paciente) {
             </div>
 
             <form method="POST" action="<?= BASE_URL ?>paciente/perfilPost">
+                <?= Csrf::field() ?>
                 <div class="etiqueta-mi-campo">Contraseña actual</div>
                 <input type="password" name="password_actual" class="mi-input"
                     placeholder="Introduce tu contraseña actual">

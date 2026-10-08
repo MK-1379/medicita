@@ -26,21 +26,43 @@ class Bootstrap
 
     public function run()
     {
-        if(class_exists($this->controller)){
-            $parents = class_parents($this->controller);
-            if(in_array('Controller', $parents)){
-                if(method_exists($this->controller, $this->action)){
-                    $controller = new $this->controller($this->action, $_GET);
-                    call_user_func_array([$controller, $this->action], $this->params);
-                } else {
-                    echo '<h1>Method does not exist</h1>';
-                }
-            } else {
-                echo '<h1>Base controller not found</h1>';
-            }
-        } else {
-            echo '<h1>Controller class does not exist</h1>';
+        // Todas las peticiones pasan por aquí, así que es el único sitio
+        // donde hace falta comprobar el token CSRF de cualquier formulario.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !Csrf::verify()) {
+            http_response_code(403);
+            echo '<h1>La solicitud no es válida. Vuelve atrás, recarga la página e inténtalo de nuevo.</h1>';
+            return;
         }
+
+        if (!class_exists($this->controller) || !is_subclass_of($this->controller, 'Controller')) {
+            $this->notFound();
+            return;
+        }
+
+        if (!$this->isCallableAction($this->controller, $this->action)) {
+            $this->notFound();
+            return;
+        }
+
+        $controller = new $this->controller($this->action, $_GET);
+        call_user_func_array([$controller, $this->action], $this->params);
+    }
+
+    // Solo se pueden llamar desde la URL los métodos públicos propios del
+    // controlador, nunca el constructor ni los métodos de la clase base.
+    private function isCallableAction($class, $action)
+    {
+        if (!method_exists($class, $action) || str_starts_with($action, '__')) {
+            return false;
+        }
+        $method = new ReflectionMethod($class, $action);
+        return $method->isPublic() && $method->getDeclaringClass()->getName() === $class;
+    }
+
+    private function notFound()
+    {
+        http_response_code(404);
+        echo '<h1>Página no encontrada</h1>';
     }
 
     private function parseUrl()

@@ -46,7 +46,10 @@ if (!empty($cita->fecha)) {
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="texto-bienvenida">Hola, <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?></span>
-            <a href="<?= BASE_URL ?>auth/logout" class="btn-salir">Cerrar sesión</a>
+            <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn-salir">Cerrar sesión</button>
+            </form>
         </div>
     </nav>
 
@@ -136,6 +139,7 @@ if (!empty($cita->fecha)) {
 
                 <div class="titulo-notas">Modificar cita</div>
                 <form method="POST" action="<?= BASE_URL ?>medico/editarCitaPost/<?= $cita->id ?>">
+                    <?= Csrf::field() ?>
                     <input type="date" name="fecha" class="input-nota"
                         value="<?= htmlspecialchars($cita->fecha) ?>">
                     <input type="time" name="hora" class="input-nota"
@@ -146,11 +150,13 @@ if (!empty($cita->fecha)) {
                     <button type="submit" class="guardar-nota">Guardar cambios</button>
                 </form>
 
-                <a href="<?= BASE_URL ?>medico/eliminarCita/<?= $cita->id ?>"
-                    class="eliminar-cita"
-                    onclick="return confirm('¿Seguro que quieres eliminar esta cita?')">
-                    Eliminar cita
-                </a>
+                <?php if ($cita->estado === 'disponible'): ?>
+                    <form method="POST" action="<?= BASE_URL ?>medico/eliminarCita/<?= $cita->id ?>" class="form-accion"
+                        onsubmit="return confirm('¿Seguro que quieres eliminar esta cita?')">
+                        <?= Csrf::field() ?>
+                        <button type="submit" class="eliminar-cita">Eliminar cita</button>
+                    </form>
+                <?php endif; ?>
 
             </div>
 

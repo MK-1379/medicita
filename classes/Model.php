@@ -1,17 +1,23 @@
 <?php
 abstract class Model
 {
+    // Una sola conexión compartida por todos los modelos durante la petición.
+    private static $connection = null;
+
     protected $dbh;
     protected $stmt;
 
     public function __construct()
     {
-        $this->dbh = new PDO(
-            "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME,
-            DB_USER,
-            DB_PASS,
-            array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
-        );
+        if (self::$connection === null) {
+            self::$connection = new PDO(
+                "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+                DB_USER,
+                DB_PASS,
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
+        }
+        $this->dbh = self::$connection;
     }
 
     public function query($query)

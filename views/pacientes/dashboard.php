@@ -31,7 +31,10 @@ $paciente = $paciente ?? null;
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="texto-bienvenida">Hola, <?= htmlspecialchars($nombrePaciente) ?></span>
-            <a href="<?= BASE_URL ?>auth/logout" class="btn-salir">Cerrar sesión</a>
+            <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn-salir">Cerrar sesión</button>
+            </form>
         </div>
     </nav>
 

@@ -36,19 +36,7 @@
         <div class="caja-registro">
 
             <h1>Crear cuenta</h1>
-            <?php if (!empty($_SESSION['flash'])): ?>
-                <?php foreach (['danger', 'success', 'warning', 'info'] as $t): ?>
-                    <?php if (!empty($_SESSION['flash'][$t])): ?>
-                        <?php foreach ($_SESSION['flash'][$t] as $msg): ?>
-                            <div class="alert alert-<?= $t ?> alert-dismissible fade show mb-3" role="alert">
-                                <?= htmlspecialchars($msg) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        <?php endforeach;
-                        unset($_SESSION['flash'][$t]); ?>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            <?php Messages::display(); ?>
 
             <div class="selector-registro">
                 <button type="button"
@@ -60,6 +48,7 @@
             </div>
 
             <form action="<?= BASE_URL ?>auth/registerPost" method="POST" id="registerForm">
+                <?= Csrf::field() ?>
                 <input type="hidden" name="role" id="roleInput"
                     value="<?= htmlspecialchars($role ?? 'paciente') ?>">
 

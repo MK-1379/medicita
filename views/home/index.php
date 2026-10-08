@@ -31,7 +31,10 @@
                     <?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>
                 </span>
                 <a href="<?= BASE_URL ?><?= $_SESSION['user_role'] ?>/dashboard" class="btn btn-entrar">Mi panel</a>
-                <a href="<?= BASE_URL ?>auth/logout" class="btn btn-registrarse">Cerrar sesión</a>
+                <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                    <?= Csrf::field() ?>
+                    <button type="submit" class="btn btn-registrarse">Cerrar sesión</button>
+                </form>
             <?php else: ?>
                 <a href="<?= BASE_URL ?>auth/login" class="btn btn-entrar">Iniciar sesión</a>
                 <a href="<?= BASE_URL ?>auth/register" class="btn btn-registrarse">Registrarse</a>

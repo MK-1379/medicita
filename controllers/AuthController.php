@@ -22,14 +22,11 @@ class AuthController extends Controller
     public function loginPost()
     {
         $this->requireGuest();
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('auth/login');
-        }
+        $this->requirePost('auth/login');
 
         $identifier = trim($_POST['identifier'] ?? '');
         $password = $_POST['password'] ?? '';
-        $role = $_POST['role'] ?? 'paciente'; // 'medico' o 'paciente'
+        $role = $this->validRole($_POST['role'] ?? '');
 
         if (empty($identifier) || empty($password)) {
             Messages::set('danger', 'Por favor rellena todos los campos.');
@@ -57,6 +54,7 @@ class AuthController extends Controller
         }
 
         session_regenerate_id(true);
+        Csrf::regenerate();
         $_SESSION['user_id'] = $user->id;
         $_SESSION['user_name'] = $user->nombre . ' ' . $user->apellido;
         $_SESSION['user_role'] = $role;
@@ -80,12 +78,9 @@ class AuthController extends Controller
     public function registerPost()
     {
         $this->requireGuest();
+        $this->requirePost('auth/register');
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('auth/register');
-        }
-
-        $role = $_POST['role'] ?? 'paciente';
+        $role = $this->validRole($_POST['role'] ?? '');
 
         $data = [
             'nombre' => trim($_POST['nombre'] ?? ''),
@@ -118,12 +113,14 @@ class AuthController extends Controller
             $this->redirect('auth/login');
         } else {
             Messages::set('danger', 'Error al crear la cuenta. Inténtalo de nuevo.');
-            $this->redirect('auth/register');
+            $this->redirect('auth/register' . ($role === 'medico' ? 'Medico' : ''));
         }
     }
 
     public function logout()
     {
+        $this->requirePost('');
+
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
@@ -147,6 +144,15 @@ class AuthController extends Controller
                 $errors[] = 'Todos los campos son obligatorios.';
                 return $errors;
             }
+        }
+
+        if (!in_array($data['sexo'], ['M', 'F', 'O'], true)) {
+            $errors[] = 'El sexo seleccionado no es válido.';
+        }
+
+        $fecha = DateTime::createFromFormat('!Y-m-d', $data['fecha_nac']);
+        if (!$fecha || $fecha->format('Y-m-d') !== $data['fecha_nac'] || $fecha > new DateTime('today')) {
+            $errors[] = 'La fecha de nacimiento no es válida.';
         }
 
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
@@ -178,5 +184,11 @@ class AuthController extends Controller
         }
 
         return $errors;
+    }
+
+    // Cualquier valor que no sea 'medico' se trata como paciente.
+    private function validRole($role)
+    {
+        return $role === 'medico' ? 'medico' : 'paciente';
     }
 }

@@ -29,7 +29,10 @@ $medico = $medico ?? null;
         </div>
         <div class="d-flex align-items-center gap-3">
             <span class="texto-bienvenida"><?= htmlspecialchars($_SESSION['user_name'] ?? '') ?></span>
-            <a href="<?= BASE_URL ?>auth/logout" class="btn-salir">Cerrar sesión</a>
+            <form method="POST" action="<?= BASE_URL ?>auth/logout" class="form-en-linea">
+                <?= Csrf::field() ?>
+                <button type="submit" class="btn-salir">Cerrar sesión</button>
+            </form>
         </div>
     </nav>
 
@@ -48,6 +51,7 @@ $medico = $medico ?? null;
 
             <div class="formulario-cita">
                 <form method="POST" action="<?= BASE_URL ?>medico/crearCitaPost">
+                    <?= Csrf::field() ?>
 
                     <div class="mb-4">
                         <div class="etiqueta-campo">Fecha <span class="campo-req">*</span></div>

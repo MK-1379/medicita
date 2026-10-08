@@ -37,19 +37,7 @@
 
             <h1>Iniciar sesión</h1>
 
-            <?php if (!empty($_SESSION['flash'])): ?>
-                <?php foreach (['danger', 'success', 'warning', 'info'] as $t): ?>
-                    <?php if (!empty($_SESSION['flash'][$t])): ?>
-                        <?php foreach ($_SESSION['flash'][$t] as $msg): ?>
-                            <div class="alert alert-<?= $t ?> alert-dismissible fade show mb-3" role="alert">
-                                <?= htmlspecialchars($msg) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        <?php endforeach;
-                        unset($_SESSION['flash'][$t]); ?>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            <?php Messages::display(); ?>
 
             <div class="selector-login">
                 <button type="button" class="btn-tipo-login active" id="btnPaciente" onclick="setRole('paciente')">Paciente</button>
@@ -57,6 +45,7 @@
             </div>
 
             <form action="<?= BASE_URL ?>auth/loginPost" method="POST">
+                <?= Csrf::field() ?>
                 <input type="hidden" name="role" id="roleInput" value="paciente">
 
                 <div class="grupo-login">

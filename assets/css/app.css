@@ -2504,3 +2504,19 @@ body.pagina-registro footer {
     align-items: center;
     gap: 8px;
 }
+
+/* Formularios de una sola acción (cerrar sesión, borrar cita):
+   se ven igual que el enlace que había antes. */
+.form-en-linea {
+    display: inline;
+    margin: 0;
+}
+.form-accion {
+    margin: 0;
+}
+/* :where() no suma especificidad, así que las clases propias del botón
+   (.btn-salir, .btn, .borrar-cita...) siguen mandando sobre esto. */
+:where(.form-en-linea, .form-accion) button {
+    font: inherit;
+    cursor: pointer;
+}

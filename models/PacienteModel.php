@@ -31,24 +31,6 @@ class PacienteModel extends Model
         return $this->single() !== false;
     }
 
-    public function getPaginated($limit, $offset)
-    {
-        $this->query("SELECT id, nombre, apellido, email, telefono
-             FROM pacientes
-             ORDER BY apellido
-             LIMIT :limit OFFSET :offset");
-        $this->bind(':limit', $limit);
-        $this->bind(':offset', $offset);
-        return $this->resultSet();
-    }
-
-    public function count()
-    {
-        $this->query("SELECT COUNT(*) AS total FROM pacientes");
-        $row = $this->single();
-        return $row->total;
-    }
-
     public function updatePassword($id, $hashedPassword)
     {
         $this->query("UPDATE pacientes SET password = :password WHERE id = :id");

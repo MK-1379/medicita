@@ -7,7 +7,7 @@ Web application for managing medical appointments, built with PHP (MVC pattern) 
 ## Features
 
 - Registration and login for two roles: **patient** and **doctor**.
-- Doctor dashboard: create and gestion medical appointments.
+- Doctor dashboard: create and manage medical appointments.
 - Patient dashboard: see, reserve and consult medical appointments.
 - Profile page where the patient can update their data and change their password.
 - Appointments have two states: `disponible` and `asignada`.
@@ -25,13 +25,16 @@ Web application for managing medical appointments, built with PHP (MVC pattern) 
 - Passwords hashed with bcrypt (`password_hash` / `password_verify`).
 - Automatic migration of legacy MD5 hashes to bcrypt on the user's next login.
 - Session ID regenerated on login (session fixation) and session fully cleared on logout.
+- CSRF protection: every form sends a per-session token that is checked in the front controller before any POST action runs (`hash_equals`), and the token is renewed on login.
+- Actions that change data (booking, deleting an appointment, logging out...) only accept POST, never a plain link.
+- Output escaped with `htmlspecialchars()`, including flash messages, to prevent XSS.
+- Only public actions of each controller can be reached from the URL.
+- Server-side validation of dates, times and form values.
 - Database credentials kept out of the repository (`config.php` is git-ignored).
-
-Known limitation: there is no CSRF protection yet (planned improvement).
 
 ## Requirements
 
-- XAMPP (Apache + MariaDB) or any PHP 8 + MySQL/MariaDB setup.
+- XAMPP (Apache + MariaDB) or any PHP 8.0+ and MySQL/MariaDB setup.
 
 ## Installation
 
@@ -79,6 +82,7 @@ C:.
 +---classes
 |       Bootstrap.php
 |       Controller.php
+|       Csrf.php
 |       Messages.php
 |       Model.php
 |       Password.php
@@ -126,6 +130,5 @@ C:.
 
 ## Possible improvements
 
-- CSRF protection on forms.
 - Automated tests.
 - Appointment cancellation and reminders.
